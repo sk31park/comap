@@ -1,6 +1,6 @@
 # Comap
 
-**English | [한국어](#한국어)**
+[🇺🇸 English](README.md) | [🇰🇷 한국어](README.ko.md)
 
 Comap is a real-time mapping service that visualized the availability of COVID-19 masks on a map. Originally developed in 2018, the project aimed to help users locate nearby stores with available masks during the pandemic.
 
