@@ -1,0 +1,67 @@
+<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-title" aria-hidden="true"
+style="overflow: hidden;">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">서비스 이용 동의</h5>
+      </div>
+      <div class="modal-body">
+        <div class="description">
+          <ul class="pl-3" style="list-style: circle;">
+            <li><strong class="text-danger">본 서비스는 현재 베타 버전임을 말씀드립니다.</strong></li>
+            <li><strong>판매 종료 여부 정보가 곧 추가될 예정입니다.</strong></li>
+            <li>정부 데이터 공개는 베타서비스 중으로 실수량과 일부 차이가 있을 수 있습니다.</li>
+            <li>약국에 전화 문의가 폭주하여 당분간 전화 번호 노출은 하지 않겠습니다.</li>
+            <li>마스크 관련 안내는 <a href="https://www.mfds.go.kr/bogunMaskPanMae.jsp" target="_blank">식약처</a>를 참고하세요.</li>
+            <li><strong>일선에서 수고하시는 약사님들을 비롯하여, 방역 최전선에서 고군분투하시는 의료진, 소방관, 군인, 자원봉사자, 그리고 질병관리본부를 비롯한 대한민국 정부 관계자 분들에게 감사의 마음을 보냅니다.</strong></li>
+            <li class="text-danger">재고량, 예측 시간 등은 오차가 있을 수 있으니 약사님들에게 불만을 제기하지 말아 주세요.</li>
+          </ul>
+          <p class="mb-0 pl-3 text-primary">#힘내라 대구 경북 #힘내라 대한민국</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">동의합니다!</button>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  @media (max-width: 768px) {
+    .description {
+      max-height: 210px;
+      overflow: auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .modal-dialog-centered {
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .modal-content {
+      margin-top: 60px;
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 90%;
+    }
+  }
+</style>
+<script>
+  "use strict";
+
+  var app = new Vue({
+    el: "#modal",
+    data: {
+    },
+    methods: {
+    },
+    mounted() {
+      $("#modal").modal({
+        backdrop: "static"
+      });
+      $("#modal").modal("show");
+    }
+  })
+</script>

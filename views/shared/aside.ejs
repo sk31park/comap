@@ -1,0 +1,538 @@
+<aside id="aside" class="position-fixed h-auto rounded bg-white shadow-lg"
+:class="{ 'd-block': !loading.active, 'active': store.state.panel.panelFocusState }"
+style="display: none;"
+:style="{ top: `${drag.yPos}px`, left: `${drag.xPos}px` }">
+  <div id="drag-btn"
+  :class="{
+    'bg-dark': store.state.maskStateColor[0],
+    'bg-secondary': store.state.maskStateColor[1],
+    'bg-danger': store.state.maskStateColor[2],
+    'bg-warning': store.state.maskStateColor[3],
+    'bg-success': store.state.maskStateColor[4]
+  }"
+  style="height: 15px;"
+  @mousedown="dragActivate"></div>
+  <div class="pt-2 pb-2 pt-md-3 pb-md-3">
+    <div class="pl-3 pr-3">
+      <div class="d-flex pt-0 pt-md-2 pb-0 pb-md-2">
+        <div class="d-flex mb-md-0">
+          <button class="btn btn-light d-flex mr-1 align-items-center" @click="store.dispatch('myPosSet')"
+          style="width: 89.95px">
+            <img class="mr-1" src="images/pin.svg" alt="" style="height: 21px;">
+            <span style="white-space: nowrap;">내 위치</span>
+          </button>
+          <button class="btn btn-light d-flex mr-2 align-items-center" @click="pharIListOpen">
+            <img src="images/list.svg" alt="" style="height: 21px;">
+          </button>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div class="d-flex">
+            <button class="btn btn-light mr-1 p-0 align-items-center justify-content-center"
+            data-toggle="collapse" data-target="#collapse-box" aria-expanded="false" aria-controls="collapse-box"
+            style="width: 38px; height: 38px; border-radius: 50%;">
+              <i class="fa" :class="{ 'fa-angle-down': store.state.collActive, 'fa-angle-right': !store.state.collActive }"></i>
+            </button>
+            <button class="btn btn-outline-primary mr-1 p-0 align-items-center justify-content-center"
+            :class="{ 'active': store.state.panel.panelActive }" style="width: 38px; height: 38px; border-radius: 50%;"
+            @click="store.commit('panelActivate', { value: null })">
+              <i class="mdi mdi-eye"></i>
+            </button>
+          </div>
+          <button id="install-btn"
+          class="btn btn-info mr-1 p-0 align-items-center justify-content-center"
+          style="width: 38px; height: 38px; border-radius: 50%;" hidden>
+            <i class="mdi mdi-cellphone-android"></i>
+          </button>
+        </div>
+      </div>
+      <div id="aside-box"
+      :class="{ 'active': store.state.panel.panelFocusState }"
+      @scroll="store.commit('panelFocus')">
+        <div id="collapse-box" class="collapse show mt-2 mb-2">
+          <div>
+            <small class="mb-1" for="radius">반경 조정</small><br>
+            <button class="btn btn-sm btn-light pt-1 pb-1 pl-2 pr-2 mb-1" :class="{ 'active': (store.state.radius == 200) }"
+            @click="store.dispatch('radiusChange', { radius: 200 })"
+            style="border-radius: 25px;">200m</button>
+            <button class="btn btn-sm btn-light pt-1 pb-1 pl-2 pr-2 mb-1" :class="{ 'active': (store.state.radius == 500) }"
+            @click="store.dispatch('radiusChange', { radius: 500 })"
+            style="border-radius: 25px;">500m</button>
+            <button class="btn btn-sm btn-light pt-1 pb-1 pl-2 pr-2 mb-1" :class="{ 'active': (store.state.radius == 1000) }"
+            @click="store.dispatch('radiusChange', { radius: 1000 })"
+            style="border-radius: 25px;">1km</button>
+            <button class="btn btn-sm btn-light pt-1 pb-1 pl-2 pr-2 mb-1" :class="{ 'active': (store.state.radius == 2000) }"
+            @click="store.dispatch('radiusChange', { radius: 2000 })"
+            style="border-radius: 25px;">2km</button>
+            <button class="btn btn-sm btn-light pt-1 pb-1 pl-2 pr-2 mb-1" :class="{ 'active': (store.state.radius == 5000) }"
+            @click="store.dispatch('radiusChange', { radius: 5000 })"
+            style="border-radius: 25px;">5km</button>
+          </div>
+          <div>
+            <small class="mb-1" for="radius">마커 필터</small><br>
+            <button class="filter-marker btn btn-sm btn-dark mb-1" :class="{ 'active': store.state.markFilterSList[0] }"
+            @click="markFilterChange(0)" style="width: 32px; height: 32px; border-radius: 50%;"></button>
+            <button class="filter-marker btn btn-sm btn-secondary mb-1" :class="{ 'active': store.state.markFilterSList[1] }"
+            @click="markFilterChange(1)" style="width: 32px; height: 32px; border-radius: 50%;"></button>
+            <button class="filter-marker btn btn-sm btn-danger mb-1" :class="{ 'active': store.state.markFilterSList[2] }"
+            @click="markFilterChange(2)" style="width: 32px; height: 32px; border-radius: 50%;"></button>
+            <button class="filter-marker btn btn-sm btn-warning mb-1" :class="{ 'active': store.state.markFilterSList[3] }"
+            @click="markFilterChange(3)" style="width: 32px; height: 32px; border-radius: 50%;"></button>
+            <button class="filter-marker btn btn-sm btn-success mb-1" :class="{ 'active': store.state.markFilterSList[4] }"
+            @click="markFilterChange(4)" style="width: 32px; height: 32px; border-radius: 50%;"></button>
+          </div>
+        </div>
+        <div :class="{ 'd-none': !store.state.panel.panelActive }">
+          <div class="tab-content"
+          :class="{ 'd-none': !store.state.infoPanelActive }">
+            <div id="phar-list" class="tab-pane" role="tabpanel">
+              <hr class="border-0"/>
+              <div class="aside-tab-box">
+                <ul class="m-0 p-0" style="list-style: none;">
+                  <li v-for="(pharInfo, index) in store.state.pharIList">
+                    <div class="d-flex mb-1 align-items-center">
+                      <p class="mb-0 mr-2">
+                        <strong @click="store.dispatch('pharInfoUpdate', { data: pharInfo, index: index })"
+                        :class="{
+                          'text-muted': (pharInfo.remain_stat == '판매중지' || pharInfo.dutyStateValue == '영업종료'),
+                          'text-dark': (pharInfo.dutyState == '정보없음'),
+                          'text-primary': (pharInfo.dutyStateValue == '영업중' && pharInfo.dutyState != '정보없음')
+                        }"
+                        style="cursor: pointer;">{{ pharInfo.name }}</strong>
+                        <span :class="{
+                          'text-light': (pharInfo.remain_stat == '판매중지'),
+                          'bg-danger': (pharInfo.remain_stat == '판매중지'),
+                          'text-secondary': (pharInfo.remain_stat == '0 ~ 1'),
+                          'text-danger': (pharInfo.remain_stat == '2 ~ 30'),
+                          'text-warning': (pharInfo.remain_stat == '30 ~ 100'),
+                          'text-success': (pharInfo.remain_stat == '100+'),
+                        }">({{ pharInfo.remain_stat }}<span v-if="(pharInfo.remain_stat != '정보없음') && (pharInfo.remain_stat != '판매중지')">&nbsp;개</span>)</span>
+                      </p>
+                      <button class="btn btn-light mr-2 pt-1 pb-1 pl-2 pr-2 border-0 shadow-none"
+                      @click="store.dispatch('activeMarkChange', { data: pharInfo, index: index })">
+                        <img src="images/pin.svg" style="height: 18px;">
+                      </button>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <input :id=`address-detail${index}` class="position-absolute m-0 p-0 border-0"
+                      type="text" :value="pharInfo.address.trim()"
+                      style="top: 0px; left: 0px; width: 1px; height: 1px;">
+                      <p class="mb-0 mr-2 h-auto bg-white border-0 text-muted small"
+                      style="line-height: 1.2">{{ pharInfo.address }}</p>
+                      <button class="btn btn-light mr-2 pt-1 pb-1 pl-2 pr-2 border-0 shadow-none" type="button"
+                      @click="addressCopy(index)">
+                        <i class="mdi mdi-content-paste"></i>
+                      </button>
+                    </div>
+                    <a v-if="(pharInfo.phoneNumber != '정보없음')" :href=`tel:${pharInfo.phoneNumber}`>{{ pharInfo.phoneNumber }}</a>
+                    <div class="mt-2">
+                      <a class="btn btn-sm btn-light text-white"
+                      :href="`http://map.daum.net/link/to/${pharInfo.name},${pharInfo.lat},${pharInfo.lng}`"
+                      target="_blank" style="color: #087dff !important; white-space: nowrap;">
+                        카카오맵
+                      </a>
+                      <a class="btn btn-sm btn-light text-white"
+                      :href="`http://map.naver.com/index.nhn?&etext=${pharInfo.name}&elat=${pharInfo.lat}&elng=${pharInfo.lng}&menu=route&pathType=1`"
+                      target="_blank" style="color: #00c73c !important; white-space: nowrap;">
+                        네이버맵
+                      </a>
+                      <a v-if="(mobileDevice != null)" class="btn btn-sm btn-light text-white"
+                      :href="`https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxaaa2958470d14b2f907396e61ef47d0a&name=${pharInfo.name}&lon=${pharInfo.lng}&lat=${pharInfo.lat}`"
+                      target="_blank" style="color: #00ac84 !important; white-space: nowrap;">
+                        티맵
+                      </a>
+                    </div>
+                    <hr v-if="(index != store.state.pharIList.length - 1)">
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div id="phar-detail" class="tab-pane show active" role="tabpanel">
+              <hr class="border-0">
+              <div class="d-md-none">
+                <div class="d-flex">
+                  <div class="small mr-3">
+                    <span class="text-italic text-muted">오늘 구매 가능한 그룹</span><br>
+                    <strong>(태어난 연도 끝자리)</strong>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[0], 'd-none': !store.state.availDay[0] }">
+                    <button class="birth-last-number btn btn-primary">토, 일요일 해당 없음</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[1], 'd-none': !store.state.availDay[1] }">
+                    <button class="birth-last-number btn btn-primary">1</button>
+                    <button class="birth-last-number btn btn-primary">6</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[2], 'd-none': !store.state.availDay[2] }">
+                    <button class="birth-last-number btn btn-primary">2</button>
+                    <button class="birth-last-number btn btn-primary">7</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[3], 'd-none': !store.state.availDay[3] }">
+                    <button class="birth-last-number btn btn-primary">3</button>
+                    <button class="birth-last-number btn btn-primary">8</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[4], 'd-none': !store.state.availDay[4] }">
+                    <button class="birth-last-number btn btn-primary">4</button>
+                    <button class="birth-last-number btn btn-primary">9</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[5], 'd-none': !store.state.availDay[5] }">
+                    <button class="birth-last-number btn btn-primary">5</button>
+                    <button class="birth-last-number btn btn-primary">10</button>
+                  </div>
+                </div>
+                <hr>
+              </div>
+              <div class="aside-tab-box">
+                <div>
+                  <small>
+                    <span v-if="(store.state.pharData.dutyState != '정보없음')" :class="{ 'text-primary': (store.state.pharData.dutyState == '영업중'), 'text-muted': !(store.state.pharData.dutyState == '영업중') }">
+                      {{ store.state.pharData.dutyState }}
+                    </span>
+                    <span v-if="(store.state.pharData.dutyTime != '정보없음')">({{ store.state.pharData.dutyTime }})</span>
+                  </small>
+                  <p class="mb-1"><strong>{{ store.state.pharData.name }}</strong></p>
+                  <div class="positon-relative d-flex align-items-center">
+                    <input id="address-detail-1" class="position-absolute m-0 p-0 border-0"
+                    type="text" :value="store.state.pharData.address.trim()"
+                    style="top: 0px; left: 0px; width: 1px; height: 1px;">
+                    <p class="mb-0 mr-2 h-auto bg-white border-0 text-muted small"
+                    style="line-height: 1.2">{{ store.state.pharData.address }}</p>
+                    <button class="btn btn-light mr-2 pt-1 pb-1 pl-2 pr-2 border-0 shadow-none" type="button"
+                    @click="addressCopy(-1)">
+                      <i class="mdi mdi-content-paste"></i>
+                    </button>
+                  </div>
+                  <a v-if="(store.state.pharData.phoneNumber != '정보없음')" :href=`tel:${store.state.pharData.phoneNumber}`>{{ store.state.pharData.phoneNumber }}</a>
+                  <div class="mt-2">
+                    <a class="btn btn-sm btn-light text-white"
+                    :href="`http://map.daum.net/link/to/${store.state.pharData.name},${store.state.pharData.lat},${store.state.pharData.lng}`"
+                    target="_blank" style="color: #087dff !important; white-space: nowrap;">
+                      카카오맵
+                    </a>
+                    <a class="btn btn-sm btn-light text-white"
+                    :href="`http://map.naver.com/index.nhn?&etext=${store.state.pharData.name}&elat=${store.state.pharData.lat}&elng=${store.state.pharData.lng}&menu=route&pathType=1`"
+                    target="_blank" style="color: #00c73c !important; white-space: nowrap;">
+                      네이버맵
+                    </a>
+                    <a v-if="(mobileDevice != null)" class="btn btn-sm btn-light text-white"
+                    :href="`https://apis.openapi.sk.com/tmap/app/routes?appKey=l7xxaaa2958470d14b2f907396e61ef47d0a&name=${store.state.pharData.name}&lon=${store.state.pharData.lng}&lat=${store.state.pharData.lat}`"
+                    target="_blank" style="color: #00ac84 !important; white-space: nowrap;">
+                      티맵
+                    </a>
+                  </div>
+                </div>
+                <hr/>
+                <table class="table">
+                  <div class="mb-2 text-muted" style="line-height: 1.2;">
+                    <p class="mb-1 small">업데이트</p>
+                    <div class="d-flex align-items-center font-italic">
+                      <i class="fa fa-history d-inline-block mr-1"></i>
+                      <span>{{ store.state.pharData.created_at }}</span>
+                    </div>
+                  </div>
+                  <tbody>
+                    <tr class="text-left">
+                      <td class="pt-1 pb-1 pl-0 border-0" scope="row">잔여량</td>
+                      <td class="pt-1 pb-1 pl-0 border-0"><strong>{{ store.state.pharData.remain_stat }}</strong><span v-if="(store.state.pharData.remain_stat != '정보없음') && (store.state.pharData.remain_stat != '판매중지')">&nbsp;개</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <hr/>
+                <div>
+                  <small class="text-primary">입고 시간</small>
+                  <p class="mb-1">
+                    <span class="font-italic">{{ store.state.pharData.stock_at }}</span>
+                  </p>
+                  <div class="d-flex justify-content-start">
+                    <div class="mr-2">
+                      <small class="text-primary">판매 시작(예측)</small>
+                      <p class="mb-0">
+                        <span>준비중</span>
+                      </p>
+                    </div>
+                    <div>
+                      <small class="text-primary">판매 종료(예측)</small>
+                      <p class="mb-0">
+                        <span>준비중</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr class="d-block d-md-none mt-2 mb-2 border-0">
+          </div>
+          <div>
+            <div id="etc-box" class="d-flex justify-content-between align-items-end">
+              <div class="d-none d-md-block pt-2 pb-2">
+                <hr class="border-0">
+                <div class="small mb-2">
+                  <span class="text-italic text-muted">오늘 구매 가능한 그룹</span><br>
+                  <strong>(태어난 연도 끝자리)</strong>
+                </div>
+                <div class="d-flex">
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[0], 'd-none': !store.state.availDay[0] }">
+                    <button class="birth-last-number btn btn-primary">토, 일요일 해당 없음</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[1], 'd-none': !store.state.availDay[1] }">
+                    <button class="birth-last-number btn btn-primary">1</button>
+                    <button class="birth-last-number btn btn-primary">6</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[2], 'd-none': !store.state.availDay[2] }">
+                    <button class="birth-last-number btn btn-primary">2</button>
+                    <button class="birth-last-number btn btn-primary">7</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[3], 'd-none': !store.state.availDay[3] }">
+                    <button class="birth-last-number btn btn-primary">3</button>
+                    <button class="birth-last-number btn btn-primary">8</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[4], 'd-none': !store.state.availDay[4] }">
+                    <button class="birth-last-number btn btn-primary">4</button>
+                    <button class="birth-last-number btn btn-primary">9</button>
+                  </div>
+                  <div class="birth-last-number" :class="{ 'd-inline-block': store.state.availDay[5], 'd-none': !store.state.availDay[5] }">
+                    <button class="birth-last-number btn btn-primary">5</button>
+                    <button class="birth-last-number btn btn-primary">10</button>
+                  </div>
+                </div>
+              </div>
+              <div class="d-md-flex pt-md-2 pb-md-2">
+                <a class="mr-1" href="https://open.kakao.com/o/go3Dtr1b" target="_blank">
+                  <img class="svg-etc-image" src="/images/question.svg"/>
+                </a>
+                <a id="kakao-link-btn" href="javascript:;">
+                  <img class="svg-etc-image" src="/images/kakao-icon.svg"/>
+                </a>
+                <!-- <a href="javascript:void(0)" @click="fbSBtnAdd">
+                  <img class="svg-etc-image" src="/images/facebook-icon.svg">
+                </a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<style>
+  aside {
+    top: 3px;
+    left: 3px;
+    width: 320px;
+    z-index: 999;
+    /* transition: max-height .5s ease-in-out; */
+  }
+
+  @media (max-width: 767px) {
+    aside {
+      top: auto !important;
+      bottom: 0px !important;
+      left: 2.5% !important;
+      width: 95%;
+      max-height: 255px;
+      overflow: hidden;
+    }
+
+    aside.active {
+      max-height: 385px !important;
+    }
+  }
+
+  /* #aside-box {
+    transition: max-height .5s ease-in-out;
+  } */
+
+  @media (max-width: 767px) {
+    #aside-box {
+      max-height: 140px;
+      overflow: auto;
+    }
+
+    #aside-box.active {
+      max-height: 270px !important;
+    }
+  }
+
+  .aside-tab-box {
+    max-height: 340px;
+    overflow: auto;
+  }
+
+  @media (max-width: 767px) {
+    .aside-tab-box {
+      max-height: none;
+    }
+  }
+
+  #drag-btn {
+    cursor: move;
+  }
+
+  .filter-marker.active {
+    background-color: #eee !important;
+  }
+
+  .birth-last-number {
+    cursor: default !important;
+  }
+
+  @media (max-width: 767px) {
+    #etc-box {
+      position: fixed;
+      top: 3px;
+      left: 3px;
+    }
+  }
+
+  .svg-etc-image {
+    height: 38px;
+  }
+
+  @media (max-width: 767px) {
+    .svg-etc-image {
+      height: 36px;
+    }
+  }
+</style>
+
+<script>
+  "use strict";
+
+  new Vue({
+    el: "#aside",
+    data: {
+      loading: {
+        active: true
+      },
+      mobileDevice: null,
+      drag: {
+        state: false,
+        xPos: 3,
+        yPos: 3,
+        prevPosX: 0,
+        prevPosY: 0
+      }
+    },
+    methods: {
+      dlBtnDeactiviate: function() {
+        console.log("Deactivate mobile download button")
+        let md = new MobileDetect(window.navigator.userAgent);
+        this.mobileDevice = md.mobile();
+        if(this.mobileDevice == null) {
+          $("#install-btn").addClass("d-none")
+        }
+      },
+      dragActivate: function(e) {
+        console.log("Activate drag");
+        this.drag.prevPosX = e.clientX - this.drag.xPos;
+        this.drag.prevPosY = e.clientY - this.drag.yPos;
+        this.drag.state = true;
+      },
+      dragExcClickAdd: function() {
+        console.log("Create aside darg exception click event");
+
+        console.log("- Up drag mouse event");
+        window.addEventListener("mouseup", (e) => {
+          this.drag.state = false;
+        })
+
+        console.log("- Move drag mouse event");
+        window.addEventListener("mousemove", (e) => {
+          if(this.drag.state) {
+            this.drag.xPos = e.clientX - this.drag.prevPosX;
+            this.drag.yPos = e.clientY - this.drag.prevPosY;
+          }
+        })
+      },
+      loadDeactivate: function() {
+        console.log("Change aside loading state");
+        this.loading.active = false;
+      },
+      pharIListOpen: function() {
+        console.log("Show pharmacy list panel");
+
+        store.commit("panelFocus");
+
+        store.commit("panelActivate", {
+          state: "force"
+        });
+
+        store.commit("infoPanelActivate");
+
+        $(".tab-pane").each(function() {
+          $(this).removeClass("show").removeClass("active");
+        })
+        $("#phar-list").addClass("show").addClass("active");
+      },
+      markFilterChange: function(index) {
+        console.log("Add filter marker");
+        Vue.set(store.state.markFilterSList, index, !store.state.markFilterSList[index]);
+        if(store.state.markFilterSList[index]) {
+          $(`.custom-overlay-state${index}`).removeClass("d-flex").addClass("d-none");
+        } else {
+          $(`.custom-overlay-state${index}`).removeClass("d-none").addClass("d-flex");
+        }
+      },
+      addressCopy: function(index) {
+        console.log("Copy address");
+        $(`#address-detail${index}`).select();
+        document.execCommand("Copy");
+
+        store.dispatch("notiShow", { text: "주소가 클립보드에 복사되었습니다." })
+      },
+      fbSBtnAdd: function() {
+        // console.log("Add facebook share button");
+
+        // FB.init({
+        //   appId: "230180671359347",
+        //   autoLogAppEvents: true,
+        //   xfbml: true,
+        //   version: "v6.0"
+        // });
+        // FB.ui({
+        //   method: "share",
+        //   href: "https://comap.info",
+        // }, function(response){});
+      },
+      kakaoSBtnAdd: function() {
+        console.log("Add kakao share button");
+
+        Kakao.init("0a228ceee689b2cc38d5c6cda2a4dc7e");
+        Kakao.Link.createDefaultButton({
+          container: "#kakao-link-btn",
+          objectType: "feed",
+          content: {
+            title: "코로나 마스크 맵",
+            description: "#코로나 #마스크 #맵",
+            imageUrl: "https://comap-image.s3.ap-northeast-2.amazonaws.com/icon-152x152.png",
+            link: {
+              mobileWebUrl: "https://comap.info",
+              webUrl: "https://comap.info"
+            }
+          },
+          social: {
+            likeCount: 286,
+            commentCount: 45,
+            sharedCount: 845
+          },
+          buttons: [
+            {
+              title: "웹으로 보기",
+              link: {
+                mobileWebUrl: "https://comap.info",
+                webUrl: "https://comap.info"
+              }
+            }
+          ]
+        });
+      }
+    },
+    mounted() {
+      this.dlBtnDeactiviate();
+      this.loadDeactivate();
+      this.dragExcClickAdd();
+      store.commit("availDaySet");
+      // this.fbSBtnAdd();
+      this.kakaoSBtnAdd();
+    }
+  })
+</script>

@@ -1,0 +1,51 @@
+<div id="legend"
+class="alert alert-dismissible position-absolute m-0 p-0 show"
+role="alert"
+style="top: 3px; right: 3px; max-width: 250px; z-index: 999">
+  <div class="d-flex justify-content-end">
+    <button class="btn btn-outline-primary mb-1 pt-0 pb-0 pl-2 pr-2 font-weight-bold"
+    data-dismiss="alert" aria-label="Close"
+    style="border-radius: 25px;">정보 닫기</button>
+  </div>
+  <div class="color-info-box mb-1 pl-2 pr-2 bg-dark text-center text-white font-weight-bold"
+  style="border-radius: 25px; opacity: .8;">영업종료/판매중지/정보없음</div>
+  <div class="d-flex justify-content-end">
+    <div class="color-info-box mb-1 mr-1 pl-2 pr-2 bg-secondary text-center text-white font-weight-bold"
+    style="border-radius: 25px; opacity: .8;">0 ~ 1 개</div>
+    <div class="color-info-box mb-1 pl-2 pr-2 bg-danger text-center text-white font-weight-bold"
+    style="border-radius: 25px; opacity: .8;">2 ~ 30 개</div>
+  </div>
+  <div class="d-flex justify-content-end">
+    <div class="color-info-box mb-1 mr-1 pl-2 pr-2 bg-warning text-center text-white font-weight-bold"
+    style="border-radius: 25px; opacity: .8;">30 ~ 100 개</div>
+    <div class="color-info-box mb-1 pl-2 pr-2 bg-success text-center text-white font-weight-bold"
+    style="border-radius: 25px; opacity: .8;">100+ 개</div>
+  </div>
+</div>
+
+<style>
+  .color-info-box:hover {
+    opacity: 1 !important;
+    cursor: default;
+  }
+</style>
+
+<script>
+  "use strict";
+
+  var app = new Vue({
+    el: "#legend",
+    methods: {
+      addMapControl: function() {
+        console.log("Add map control")
+        $('#legend').on('closed.bs.alert', function () {
+          let mapTypeControl = new kakao.maps.MapTypeControl();
+          store.state.map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+        })
+      }
+    },
+    mounted() {
+      this.addMapControl();
+    }
+  })
+</script>

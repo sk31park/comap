@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Installing Mocha...
+      #- npm install -g mocha
+  pre_build:
+    commands:
+      - echo Installing source NPM dependencies...
+      #- npm install unit.js
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Compiling the Node.js code
+      #- mocha server.js
+  post_build:
+    commands:
+      - echo Build completed on `date`
+artifacts:
+  type: zip
+  files:
+    - bin/*
+    - public/**/*
+    - routes/*
+    - scripts/*
+    - store/*
+    - views/**/*
+    - .gitignore
+    - app.js
+    - appspec.yml
+    - manifest.json
+    - package.json
+    - service-worker.js

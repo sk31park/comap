@@ -1,0 +1,128 @@
+<div>
+  <div id="map" class="position-absolute m-0 p-0 w-100 h-100"
+  style="top: 0; bottom: 0; left: 0; right: 0;">
+    <div class="position-absolute w-100 h-100" :class="{ 'd-none': !store.state.loading.active }"
+    style="top: 0; left: 0;">
+      <img class="position-absolute m-auto" src="/images/loading.svg" alt=""
+      style="top: 0; bottom: 0; left: 0; right: 0; width: 32px; height: 32px; z-index: 999;"/>
+    </div>
+  </div>
+</div>
+
+<style>
+  #map {
+    user-select: none;
+  }
+
+  .custom-overlay {
+    cursor: pointer;
+  }
+
+  .custom-overlay:hover {
+    background-color: #007bff !important;
+    color: white !important;
+  }
+
+  .custom-overlay.active {
+    display: flex !important;
+    background-color: #007bff !important;
+    color: white !important;
+  }
+</style>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=80b827215b5bab66a34bfe01d517b225&libraries=services"></script>
+<script>
+  "use strict";
+
+  var app = new Vue({
+    el: "#map",
+    data: {
+      zoomControl: null
+    },
+    methods: {
+      mapSet: function() {
+        console.log("Set map component initialization");
+        store.state.geocoder = new kakao.maps.services.Geocoder();
+
+        console.log("- Set a map")
+        store.state.map = new kakao.maps.Map(document.getElementById("map"), {
+          center : new kakao.maps.LatLng(36.2683, 127.6358),
+          level: 8
+        });
+        console.log("- Set a max zoom level")
+        store.state.map.setMaxLevel(10);
+        console.log("- Set a control");
+        // let mapTypeControl = new kakao.maps.MapTypeControl();
+        this.zoomControl = new kakao.maps.ZoomControl();
+        console.log("- Add a control");
+        // store.state.map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+        store.state.map.addControl(this.zoomControl, kakao.maps.ControlPosition.BOTTOMRIGHT);
+        console.log("Set my position marker")
+        store.state.marker.myPosMarkImage = new kakao.maps.MarkerImage(
+          "/images/pin.svg",
+          new kakao.maps.Size(16, 32), {
+            offset: new kakao.maps.Point(8, 21)
+          }
+        )
+        store.state.marker.myPosMarker = new kakao.maps.Marker({
+          position: new kakao.maps.LatLng(36.2683, 127.6358), 
+          image: store.state.marker.myPosMarkImage
+        });
+      },
+      mapDrag: function() {
+        console.log("Add map drag event");
+        kakao.maps.event.addListener(store.state.map, "dragstart", () => {
+          store.commit("panelBlur");
+        });
+      },
+      mapClick: function() {
+        console.log("Add map cick event");
+        kakao.maps.event.addListener(store.state.map, "click", () => {
+          store.commit("panelBlur");
+        });
+      },
+      zoomStart: function() {
+        console.log("Add map zoom start event");
+        kakao.maps.event.addListener(store.state.map, 'zoom_start', () => {
+          store.commit("panelBlur");
+        });
+      },
+      resrControl: function() {
+        console.log("response zoom control");
+        let _window = $(window);
+        if(_window.width() < 768) {
+          store.state.map.removeControl(this.zoomControl, kakao.maps.ControlPosition.BOTTOMRIGHT);
+        } else {
+          store.state.map.addControl(this.zoomControl, kakao.maps.ControlPosition.BOTTOMRIGHT);
+        }
+        let check = true;
+        _window.resize(() => {
+          if(_window.width() < 768) {
+            if(check) {
+              store.state.map.removeControl(this.zoomControl, kakao.maps.ControlPosition.BOTTOMRIGHT);
+            }
+            check = false;
+          } else {
+            if(!check) {
+              store.state.map.addControl(this.zoomControl, kakao.maps.ControlPosition.BOTTOMRIGHT);
+            }
+            check = true;
+          }
+        })
+      }
+    },
+    mounted() {
+      this.mapSet();
+      this.resrControl();
+      this.mapDrag();
+      this.mapClick();
+      this.zoomStart();
+      store.dispatch("myPosSet");
+      store.dispatch("markClickUpdate");
+      store.dispatch("zoomChange");
+      store.dispatch("panChange");
+      store.dispatch("customOClick");
+      store.dispatch("pharInfocoll");
+    }
+  })
+</script>

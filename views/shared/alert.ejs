@@ -1,0 +1,26 @@
+<transition id="notification" class="position-absolute w-100" name="fade">
+  <div v-if="!store.state.notification.active" class="position-absolute d-flex align-items-center justify-content-center m-auto"
+  style="top: 21px; left: 0; right: 0; z-index: 9999;">
+    <div class="d-inline-block pt-1 pb-1 pl-2 pr-2 rounded text-light" style="background-color: rgba(0, 0, 0, 0.5);">
+      {{ store.state.notification.text }}
+    </div>
+  </div>
+</transition>
+
+<style>
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  "use strict";
+
+  var app = new Vue({
+    el: "#notification"
+  })
+</script>

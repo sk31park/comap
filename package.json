@@ -1,0 +1,23 @@
+{
+  "name": "comap",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon ./bin/www",
+    "start": "pm2 start ./bin/www",
+    "stop": "pm2 delete ./bin/www"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "ip": "^1.1.5",
+    "morgan": "~1.9.1",
+    "request": "^2.88.2",
+    "serve-favicon": "^2.5.0",
+    "xml-js": "^1.6.11"
+  }
+}
